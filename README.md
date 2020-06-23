@@ -23,7 +23,7 @@ Since I want to install nodemon such that it can access any file in the director
 
 >npm i -g nodemon
 
-For the next step, I have used [SQLYog](https://www.webyog.com/) administration tool. Once inside, create a new database with the name **‘learners’**.  Now, within this database, create a new table with the name ‘learnerdetails’ and the following columns:
+4). For the next step, I have used [SQLYog](https://www.webyog.com/). Once inside, create a new database with the name **‘learners’**.  Now, within this database, create a new table with the name ‘learnerdetails’ and the following columns:
 
 * learner_id (INT) – Primary Key
 * learner_name (VARCHAR)
@@ -32,8 +32,56 @@ For the next step, I have used [SQLYog](https://www.webyog.com/) administration 
 
 Add some data of your own so that we can work on it.
 
-I will be using another application to make my requests called [Postman](https://www.postman.com/). Postman can be easily added to your browser as a plugin. It helps in organizing the requests from the client and store the request history as well.
+5). I will be using another application to make my requests called [Postman](https://www.postman.com/). Postman can be easily added to your browser as a plugin. It helps in organizing the requests from the client and store the request history as well.
+
+6). Next, you need to create and run a Stored Procedure in your database which can process your insert or update requests. 
+
+```sql
+CREATE DEFINER=`root`@`localhost` PROCEDURE `learnerAddOrEdit`(
+
+IN _learner_id INT,
+
+IN _learner_name VARCHAR(45),
+
+IN _learner_email VARCHAR(45),
+
+IN _course_Id INT
+
+)
+
+BEGIN
+
+IF _learner_id = 0 THEN
+
+INSERT INTO learnerdetails(learner_name,learner_email,course_Id)
+
+VALUES (_learner_name,_learner_email,_course_Id);
+
+SET _learner_id = last_insert_id();
+
+ELSE
+
+UPDATE learnerdetails
+
+SET
+
+learner_name = _learner_name,
+
+learner_email = _learner_email,
+
+course_Id = _course_Id
+
+WHERE learner_id = _learner_id;
+
+END IF;
+
+SELECT _learner_id AS 'learner_id';
+
+END
+```
 
 Now, to retrive all the data inside the table, select GET from the drop-down list and type in the below URL: http://localhost:8080/learners
 
-Subsequesntly, to achieve results, choose POST, PUT and DELETE request from the dropdown and see the reflected data.
+According to our code, learner ID with value 0 indicates that the particular entry is new to the database. So, whenever you are making an Insert request make sure you pass the ID as 0. Now open POSTMAN, select POST from the dropdown list provide the URL and enter learners details in the body section.
+
+Subsequesntly, to achieve results, choose PUT and DELETE request from the dropdown to update and delete records.
